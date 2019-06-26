@@ -29,7 +29,7 @@
 #include "SDCard.h"
 #include "gpio.h"
 
-static const uint8_t OXFF = 0xFF;
+//static const uint8_t OXFF = 0xFF;
 
 
 int SDCard__cmd(int cmd, int arg);

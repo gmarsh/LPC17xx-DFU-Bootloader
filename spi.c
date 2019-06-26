@@ -68,10 +68,10 @@ void SPI_init(PinName mosi, PinName miso, PinName sclk)
         sspr = LPC_SSP0;
 //         isr_dispatch[0] = this;
 
-        LPC_PINCON->PINSEL0 &= ~(3 << (15*2));
-        LPC_PINCON->PINSEL0 |=  (2 << (15*2));
-        LPC_PINCON->PINSEL1 &= ~( (3 << ((17*2)&30)) | (3 << ((18*2)&30)) );
-        LPC_PINCON->PINSEL1 |=  ( (2 << ((17*2)&30)) | (2 << ((18*2)&30)) );
+        LPC_PINCON->PINSEL0 &= ~(3U << (15*2));
+        LPC_PINCON->PINSEL0 |=  (2U << (15*2));
+        LPC_PINCON->PINSEL1 &= ~( (3U << ((17*2)&30)) | (3U << ((18*2)&30)) );
+        LPC_PINCON->PINSEL1 |=  ( (2U << ((17*2)&30)) | (2U << ((18*2)&30)) );
 
         LPC_SC->PCLKSEL1 &= 0xFFFFF3FF;
         LPC_SC->PCLKSEL1 |= 0x00000400;
@@ -88,7 +88,7 @@ void SPI_init(PinName mosi, PinName miso, PinName sclk)
 //         LPC_PINCON->PINSEL3 |= 0x0003C300;
 
 //         LPC_PINCON->PINSEL3 &= ~( (3 << ((20*2)&30)) | (3 << ((23*2)&30)) | (3 << ((24*2)&30)) );
-        LPC_PINCON->PINSEL3 |=  ( (3 << ((20*2)&30)) | (3 << ((23*2)&30)) | (3 << ((24*2)&30)) );
+        LPC_PINCON->PINSEL3 |=  ( (3U << ((20*2)&30)) | (3U << ((23*2)&30)) | (3U << ((24*2)&30)) );
 
         LPC_SC->PCLKSEL1 &= 0xFFFFF3FF;
         LPC_SC->PCLKSEL1 |= 0x00000400;

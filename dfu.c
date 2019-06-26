@@ -126,14 +126,6 @@ DFU_APP_Descriptor desc =
 	}
 };
 
-typedef struct
-__attribute__ ((packed))
-{
-	uint8_t		bStatus;			// status of most recent command
-	uint32_t	bwPollTimeout:24;	// time to next poll
-	uint8_t		bState;				// state that we're about to enter
-	uint8_t		iString;			// optional string description for status
-} DFU_STATUS_t;
 
 typedef enum
 {
@@ -170,6 +162,16 @@ typedef enum
 	dfuERROR,			// device has experienced an error, is waiting for CLRSTATUS
 } DFU_STATE_enum;
 
+typedef struct
+__attribute__ ((packed))
+{
+	DFU_STATUS_enum		bStatus;			// status of most recent command
+	uint32_t	bwPollTimeout:24;	// time to next poll
+	DFU_STATE_enum		bState;				// state that we're about to enter
+	uint8_t		iString;			// optional string description for status
+} DFU_STATUS_t;
+
+
 DFU_STATE_enum current_state;
 
 DFU_STATUS_t DFU_status = {
@@ -204,7 +206,7 @@ void DFU_init(void)
 void DFU_GetStatus(CONTROL_TRANSFER *control)
 {
 	printf("DFU:GETSTATUS\n");
-	control->buffer = &DFU_status;
+	control->buffer = (uint8_t *) &DFU_status;
 	control->bufferlen = 6;
 }
 

@@ -339,7 +339,7 @@
 #define PCI2S			(1<<27)
 #define PCGPDMA	(1<<29)
 #define PCENET		(1<<30)
-#define PCUSB		(1<<31)
+#define PCUSB		(1U<<31)
 #define PCONP_Val             (PCUART0 | PCSSP0 | PCSSP1 | PCGPIO | PCUSB)
 
 #define CLKOUTCFG_Val         0x00000000

@@ -84,10 +84,10 @@ void start_dfu(void)
 
 void check_sd_firmware(void)
 {
-	int r;
+	volatile int f;
 // 	printf("Check SD\n");
 	f_mount(0, &fat);
-	if ((r = f_open(&file, firmware_file, FA_READ)) == FR_OK)
+	if ((f = f_open(&file, firmware_file, FA_READ)) == FR_OK)
 	{
 // 		printf("Flashing firmware...\n");
 		uint8_t buf[512];
@@ -118,7 +118,7 @@ void check_sd_firmware(void)
 	}
 	else
 	{
-// 		printf("open: %d\n", r);
+// 		printf("open: %d\n", f);
 	}
 }
 
@@ -237,8 +237,8 @@ int main(void)
 
 	// grab user code reset vector
 // #ifdef DEBUG
-	unsigned *p = (unsigned *)(USER_FLASH_START +4);
-	printf("Jumping to 0x%x\n", *p);
+	volatile uint32_t p = (USER_FLASH_START +4);
+	printf("Jumping to 0x%lx\n", p);
 // #endif
 
 	while (UART_busy());
@@ -262,7 +262,7 @@ int main(void)
 
 DWORD get_fattime(void)
 {
-#define	YEAR	2012
+#define	YEAR	2012U
 #define MONTH	11
 #define DAY		13
 #define HOUR	20

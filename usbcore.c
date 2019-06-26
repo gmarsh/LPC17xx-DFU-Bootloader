@@ -90,7 +90,7 @@ void requestGetDescriptor(void)
 			}
 			if (i == dIndex)
 			{
-				control.buffer = d;
+				control.buffer = (uint8_t *) d;
 				if (dType == DT_CONFIGURATION)
 				{
 					control.bufferlen = ((usbdesc_configuration *) d)->wTotalLength;
@@ -141,7 +141,7 @@ void EP0setup(void)
 {
 // 	printf("SETUP\n");
 
-	int l;
+	volatile int l;
 
 	if ((l = usb_read_packet(EP0OUT, &control.setup, 8)) == 8)
 	{

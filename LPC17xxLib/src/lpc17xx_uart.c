@@ -52,14 +52,14 @@
 
 static Status uart_set_divisors(LPC_UART_TypeDef *UARTx, uint32_t baudrate);
 
-uint32_t const uabs(const uint32_t a, const uint32_t b)
+uint32_t uabs(const uint32_t a, const uint32_t b)
 {
 	if (a>=b)
 		return a-b;
 	return b-a;
 }
 
-uint32_t const calc_baud(uint32_t pclk, uint32_t dl, uint32_t divaddval, uint32_t mulval)
+uint32_t calc_baud(uint32_t pclk, uint32_t dl, uint32_t divaddval, uint32_t mulval)
 {
 	// 65535 * 14 * 16 is less than 2**24 so we have a spare 8 bits of precision
 	// we can use them to increase our accuracy quite a bit

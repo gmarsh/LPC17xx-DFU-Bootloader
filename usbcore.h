@@ -44,7 +44,7 @@ __attribute__ ((packed))
 
 typedef struct
 {
-	void *buffer;
+	uint8_t *buffer;
 	int bufferlen;
 
 	uint8_t zlp;
