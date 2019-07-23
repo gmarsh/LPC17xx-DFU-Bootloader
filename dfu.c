@@ -200,7 +200,7 @@ void DFU_init(void)
 {
 	usb_provideDescriptors(&desc);
 	flash_p = &_user_flash_start;
-// 	printf("user flash: %p\n", flash_p);
+ 	printf("user flash: %p\n", flash_p);
 }
 
 void DFU_GetStatus(CONTROL_TRANSFER *control)
@@ -213,7 +213,7 @@ void DFU_GetStatus(CONTROL_TRANSFER *control)
 void DFU_GetState(CONTROL_TRANSFER *control)
 {
 	printf("DFU:GETSTATE\n");
-	control->buffer = &current_state;
+	control->buffer = (uint8_t *) &current_state;
 	control->bufferlen = 1;
 }
 
@@ -227,7 +227,7 @@ void DFU_Download(CONTROL_TRANSFER *control)
 
 	if (control->setup.wLength > 0)
 	{
-// 		printf("WRITE: %p\n", flash_p);
+ 		printf("WRITE: %p\n", flash_p);
 		if ((flash_p + control->setup.wLength) <= ((&_user_flash_start) + ((uint32_t)(&_user_flash_size))))
 		{
 			current_state = dfuDNLOADSYNC;

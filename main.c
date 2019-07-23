@@ -23,30 +23,13 @@
  *                                                                            *
  *****************************************************************************/
 
-#include "usbhw.h"
-#include "usbcore.h"
-
-#include "uart.h"
-
 #include "SDCard.h"
-
 #include "gpio.h"
-
 #include "sbl_iap.h"
 #include "sbl_config.h"
-
 #include "ff.h"
-
-#include "dfu.h"
-
 #include "min-printf.h"
-
 #include "lpc17xx_wdt.h"
-
-#define PLAY_BTN    P2_12
-#define ISP_BTN	    P2_10
-
-#define DFU_BTN     PLAY_BTN
 
 #ifndef DEBUG_MESSAGES
 #define printf(...) do {} while (0)
@@ -58,38 +41,15 @@ FIL		file;
 const char *firmware_file = "firmware.bin";
 const char *firmware_old  = "firmware.cur";
 
-void setleds(int leds)
-{
-	GPIO_write(LED1, leds &  1);
-	GPIO_write(LED2, leds &  2);
-	GPIO_write(LED3, leds &  4);
-	GPIO_write(LED4, leds &  8);
-	GPIO_write(LED5, leds & 16);
-}
-
-int dfu_btn_pressed(void)
-{
-	return GPIO_get(DFU_BTN);
-}
-
-void start_dfu(void)
-{
-	DFU_init();
-	usb_init();
-	usb_connect();
-	while (DFU_complete() == 0)
-		usb_task();
-	usb_disconnect();
-}
 
 void check_sd_firmware(void)
 {
 	volatile int f;
-// 	printf("Check SD\n");
+ 	printf("Check SD\n");
 	f_mount(0, &fat);
 	if ((f = f_open(&file, firmware_file, FA_READ)) == FR_OK)
 	{
-// 		printf("Flashing firmware...\n");
+ 		printf("Flashing firmware...\n");
 		uint8_t buf[512];
 		unsigned int r = sizeof(buf);
 		uint32_t address = USER_FLASH_START;
@@ -100,25 +60,20 @@ void check_sd_firmware(void)
 				f_close(&file);
 				return;
 			}
-
-			setleds((address - USER_FLASH_START) >> 15);
-
-// 			printf("\t0x%lx\n", address);
-
 			write_flash((void *) address, (char *)buf, sizeof(buf));
 			address += r;
 		}
 		f_close(&file);
 		if (address > USER_FLASH_START)
 		{
-// 			printf("Complete!\n");
+ 			printf("Complete!\n");
 			r = f_unlink(firmware_old);
 			r = f_rename(firmware_file, firmware_old);
 		}
 	}
 	else
 	{
-// 		printf("open: %d\n", f);
+ 		printf("open: %d\n", f);
 	}
 }
 
@@ -184,24 +139,22 @@ static void new_execute_user_code(void)
 int main(void)
 {
 	WDT_Feed();
+	
+	// turn off stuff that should be off
+	
+	// hot end heater output
+	GPIO_init(P3_26); GPIO_output(P3_26); GPIO_write(P3_26, 0);
+	// heated bed heater output
+	GPIO_init(P1_19); GPIO_output(P1_19); GPIO_write(P1_19, 0);
+	// part cooling fan output
+	GPIO_init(P3_25); GPIO_output(P3_25); GPIO_write(P3_25, 0);
+	// extruder fan output
+	GPIO_init(P0_27); GPIO_output(P0_27); GPIO_write(P0_27, 0);
+	// beeper
+	GPIO_init(P0_19); GPIO_output(P0_19); GPIO_write(P0_19, 0);
 
-	GPIO_init(DFU_BTN); GPIO_input(DFU_BTN);
-
-	GPIO_init(LED1); GPIO_output(LED1);
-	GPIO_init(LED2); GPIO_output(LED2);
-	GPIO_init(LED3); GPIO_output(LED3);
-	GPIO_init(LED4); GPIO_output(LED4);
-	GPIO_init(LED5); GPIO_output(LED5);
-
-	// turn off heater outputs
-	GPIO_init(P2_4); GPIO_output(P2_4); GPIO_write(P2_4, 0);
-	GPIO_init(P2_5); GPIO_output(P2_5); GPIO_write(P2_5, 0);
-	GPIO_init(P2_6); GPIO_output(P2_6); GPIO_write(P2_6, 0);
-	GPIO_init(P2_7); GPIO_output(P2_7); GPIO_write(P2_7, 0);
-
-	setleds(31);
-
-	UART_init(UART_RX, UART_TX, APPBAUD);
+	// turn off LED for now
+	GPIO_init(LED); GPIO_output(LED); GPIO_write(LED,0);
 
 	printf("Bootloader Start\n");
 
@@ -212,23 +165,23 @@ int main(void)
 	if (SDCard_disk_initialize() == 0)
 		check_sd_firmware();
 
-	int dfu = 0;
-	if (dfu_btn_pressed() == 0)
-	{
-		printf("ISP button pressed, entering DFU mode\n");
-		dfu = 1;
-	}
-	else if (WDT_ReadTimeOutFlag()) {
+	int boot_failed = 0;
+	
+	if (WDT_ReadTimeOutFlag()) {
 		WDT_ClrTimeOutFlag();
-		printf("WATCHDOG reset, entering DFU mode\n");
-		dfu = 1;
-	} else if (*(uint32_t *)USER_FLASH_START == 0xFFFFFFFF) {
-        printf("User flash empty, enabling DFU\n");
-        dfu = 1;
-    }
-
-	if (dfu)
-		start_dfu();
+		printf("Watchdog reset, halted\n");
+		boot_failed = 1;
+	}
+	else if (*(uint32_t *)USER_FLASH_START == 0xFFFFFFFF) {
+		printf("User flash empty, halted");
+		boot_failed = 1;
+	}
+	
+	// if boot failed, turn on LED and halt
+	if (boot_failed) {
+		GPIO_write(LED,1);
+		for (;;);
+	}
 
 #ifdef WATCHDOG
 	WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
@@ -236,23 +189,12 @@ int main(void)
 #endif
 
 	// grab user code reset vector
-// #ifdef DEBUG
 	volatile uint32_t p = (USER_FLASH_START +4);
 	printf("Jumping to 0x%lx\n", p);
-// #endif
-
-	while (UART_busy());
-	printf("Jump!\n");
-	while (UART_busy());
-	UART_deinit();
 
 	new_execute_user_code();
 
-    UART_init(UART_RX, UART_TX, APPBAUD);
-
 	printf("This should never happen\n");
-
-	while (UART_busy());
 
 	for (volatile int i = (1<<18);i;i--);
 
@@ -276,33 +218,32 @@ DWORD get_fattime(void)
 			((SECOND & 63) <<  0);
 }
 
+
 int _write(int fd, const char *buf, int buflen)
 {
-	if (fd < 3)
-	{
-		while (UART_cansend() < buflen);
-		return UART_send((const uint8_t *)buf, buflen);
-	}
+	// doesn't do anything (stripped out UART code)
+	// redirect to emulator, or add back UART code, or whatever you want :)
 	return buflen;
 }
 
+
 void NMI_Handler() {
-// 	printf("NMI\n");
+ 	printf("NMI\n");
 	for (;;);
 }
 void HardFault_Handler() {
-// 	printf("HardFault\n");
+ 	printf("HardFault\n");
 	for (;;);
 }
 void MemManage_Handler() {
-// 	printf("MemManage\n");
+ 	printf("MemManage\n");
 	for (;;);
 }
 void BusFault_Handler() {
-// 	printf("BusFault\n");
+ 	printf("BusFault\n");
 	for (;;);
 }
 void UsageFault_Handler() {
-// 	printf("UsageFault\n");
+ 	printf("UsageFault\n");
 	for (;;);
 }

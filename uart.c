@@ -260,10 +260,12 @@ static int baud_space_search(uint32_t target_baud, uart_regs *r)
 
 int UART_baud(int baud)
 {
-    TxIntStat = RESET;
+	if ((port < 0) || (port > 3)) return -1;
+	
+	TxIntStat = RESET;
 
-    RB_ZERO(txbuf);
-    RB_ZERO(rxbuf);
+	RB_ZERO(txbuf);
+	RB_ZERO(rxbuf);
 
 	uart_regs r = { 0, 0, 0, 0, 0 };
 
@@ -331,10 +333,8 @@ int UART_baud(int baud)
 	u->ICR = 0;
 	u->TER |= UART_TER_TXEN;
 
-	if (c < 128)
-		NVIC_EnableIRQ(c);
-
-    return baud;
+	NVIC_EnableIRQ(c);
+	return baud;
 }
 
 void UART_deinit(void) {

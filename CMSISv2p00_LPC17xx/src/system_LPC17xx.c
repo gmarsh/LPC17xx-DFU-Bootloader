@@ -291,24 +291,21 @@
 #define CLOCK_SETUP           1
 #define SCS_Val               0x00000020
 #define CLKSRCSEL_Val         0x00000001
-#define PLL0_SETUP            1            // NOT USED, see SystemInit() below
-#define PLL0CFG_Val           0x00000013   // NOT USED, see SystemInit() below
+
+#define PLL0_SETUP            1
+#define PLL0CFG_Val           0x00010018
+#define CCLKCFG_Val           0x00000002
 // F_CRYSTAL = 12MHz
-// MSEL0 = 0x13
-// NSEL0 = 0x0
-// M = MSEL + 1
-// N = NSEL + 1
-// F_PLL0 = 2 * M * 12MHz / N
-// F_PLL0 = 480MHz
-// F_cpu = F_PLL0 / CCLKCFG
-// F_cpu = 120MHz
+// MSEL0 = 0x18 = 24
+// NSEL0 = 0x1 = 1
+// M = MSEL + 1 = 25
+// N = NSEL + 1 = 2
+// F_PLL0 = 2 * M * 12MHz / N = 300MHz
+// F_cpu = F_PLL0 / (CCLKCFG+1) = 100MHz
 
-#define PLL1_SETUP            1           // NOT USED, see SystemInit() below
-#define PLL1CFG_Val           0x00000023  // NOT USED, see SystemInit() below
-
-#define CCLKCFG_Val           0x00000003  // NOT USED, see SystemInit() below
-
-#define USBCLKCFG_Val         0x00000009  // NOT USED, see SystemInit() below
+#define PLL1_SETUP            1         
+#define PLL1CFG_Val           0x00000023
+#define USBCLKCFG_Val         0x00000009
 
 #define PCLKSEL0_Val          0x00000000
 #define PCLKSEL1_Val          0x00000000
@@ -530,28 +527,6 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 
 }
 
-
-/**
- * Detect if chip is rated to run at 100MHz (lpc17x[0-8]) or 120MHz (lpc17x9)
- *
- * @param  none
- * @return non-zero if chip is rated for 120MHz
- *
- * @brief  Detect max clock speed
- */
-static int can_120MHz() {
-	#define IAP_LOCATION 0x1FFF1FF1
-	uint32_t command[1];
-	uint32_t result[5];
-	typedef void (*IAP)(uint32_t*, uint32_t*);
-	IAP iap = (IAP) IAP_LOCATION;
-
-	command[0] = 54;
-	iap(command, result);
-
-	return result[1] & 0x00100000;
-}
-
 /**
  * Initialize the system
  *
@@ -595,19 +570,11 @@ void SystemInit (void)
 		*/
 
 	LPC_SC->CLKSRCSEL = CLKSRCSEL_Val;  /* Select Clock Source for PLL0       */
-
 	LPC_SC->CCLKCFG   = 0x00000002;     /* Setup CPU Clock Divider            */
-
-	if(can_120MHz()) {
-		LPC_SC->PLL0CFG   = 0x0000000E; /* configure PLL0                     */
-		LPC_SC->PLL0FEED  = 0xAA;
-		LPC_SC->PLL0FEED  = 0x55;
-	} else {
-//     LPC_SC->PLL0CFG   = 0x0000000B;  // 96MHz
-		LPC_SC->PLL0CFG   = 0x00010018; // 100MHz
-		LPC_SC->PLL0FEED  = 0xAA;
-		LPC_SC->PLL0FEED  = 0x55;
-	}
+	
+	LPC_SC->PLL0CFG   = PLL0CFG_Val;
+	LPC_SC->PLL0FEED  = 0xAA;
+	LPC_SC->PLL0FEED  = 0x55;
 
 	LPC_SC->PLL0CON   = 0x01;           /* PLL0 Enable                        */
 	LPC_SC->PLL0FEED  = 0xAA;

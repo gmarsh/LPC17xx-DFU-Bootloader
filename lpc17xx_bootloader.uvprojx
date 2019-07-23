@@ -10,6 +10,7 @@
       <TargetName>LPC1768</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -137,7 +138,7 @@
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -335,7 +336,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--gnu</MiscControls>
-              <Define>MAX_URI_LENGTH=512,__LPC17XX__,USB_DEVICE_ONLY,APPBAUD=100000</Define>
+              <Define>MAX_URI_LENGTH=512,__LPC17XX__,USB_DEVICE_ONLY</Define>
               <Undefine></Undefine>
               <IncludePath>CMSISv2p00_LPC17xx\inc;CMSISv2p00_LPC17xx\src;LPC17xxLib\inc;fatfs;.</IncludePath>
             </VariousControls>
@@ -562,24 +563,9 @@
           <GroupName>bootloader</GroupName>
           <Files>
             <File>
-              <FileName>baudfinder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\baudfinder.c</FilePath>
-            </File>
-            <File>
-              <FileName>dfu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\dfu.c</FilePath>
-            </File>
-            <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>lpc17xx_usb.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lpc17xx_usb.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
@@ -600,21 +586,6 @@
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\spi.c</FilePath>
-            </File>
-            <File>
-              <FileName>uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbcore.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\usbcore.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbhw.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\usbhw.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1180,24 +1151,9 @@
           <GroupName>bootloader</GroupName>
           <Files>
             <File>
-              <FileName>baudfinder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\baudfinder.c</FilePath>
-            </File>
-            <File>
-              <FileName>dfu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\dfu.c</FilePath>
-            </File>
-            <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>lpc17xx_usb.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lpc17xx_usb.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
@@ -1218,21 +1174,6 @@
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\spi.c</FilePath>
-            </File>
-            <File>
-              <FileName>uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbcore.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\usbcore.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbhw.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\usbhw.c</FilePath>
             </File>
           </Files>
         </Group>
